@@ -1,1 +1,1 @@
-# NephroTOXPred_in_batch
+# NTbatch
