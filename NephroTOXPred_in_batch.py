@@ -89,7 +89,7 @@ model = joblib.load('./Model_final.joblib')
 # Streamlit user interface
 st.title("Nephrotoxic Component Predictor")
 
-st.write("**Upload a CSV file with compound names, SMILES and for batch prediction.**")
+st.write("**Upload a CSV file with compound names, SMILES and InChIKey for batch prediction.**")
 
 # Display sample CSV content
 st.write("Example:")
