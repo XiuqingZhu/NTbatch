@@ -16,6 +16,10 @@ if os.path.exists("prediction_results.csv"):
 def load_image(image_path):
     return Image.open(image_path)
 
+@st.cache_data(ttl=3600) 
+def load_env_compounds():
+    return pd.read_csv('./Environmental-Related Compounds Database.csv')
+
 def run_progress():
     progress_bar = st.empty()
     for i in range(10):
@@ -65,7 +69,11 @@ def generate_feature_vector(smiles, feature_order):
 
     return feature_vector
 
-st.write("Supported by the service of Xiuqing Zhu at the AI-Drug Lab, the affiliated Brain Hospital, Guangzhou Medical University, China. If you have any questions, please feel free to contact me at 2018760376@gzhmu.edu.cn. ")
+st.write("**TCM-EnvNephroToxPred**: A computational tool for renal toxicity evaluation of environmentally relevant Traditional Chinese Medicine compounds developed through interdisciplinary collaboration. This predictive model assesses nephrotoxic risks in herbal-derived environmental contaminants.")
+
+st.write("**Research Support**: This work was enabled by computational infrastructure and expertise from Pro. Xiuqing Zhu, AI-Drug Lab, the Affiliated Brain Hospital of Guangzhou Medical University, China.")
+
+st.write("**Contact**: For scientific inquiries or collaborative opportunities, please contact: Pro. Xiuqing Zhu, Email: 2018760376@gzhmu.edu.cn")
 
 # Define feature names
 feature_df = pd.read_csv('./features_for_ML.csv')
@@ -77,13 +85,14 @@ model = joblib.load('./Model_final.joblib')
 # Streamlit user interface
 st.title("Nephrotoxic Component Predictor")
 
-st.write("**Upload a CSV file with compound names and SMILES for batch prediction.**")
+st.write("**Upload a CSV file with compound names, SMILES and for batch prediction.**")
 
 # Display sample CSV content
 st.write("Example:")
 st.write(pd.DataFrame({
     "Compound Name": ["Compound1", "Compound2", "Compound3"],
     "Smiles": ["CCO", "O=C=O", "C1=CC=CC=C1"]
+    "InChIKey": ["LFQSCWFLJHTTHZ-UHFFFAOYSA-N", "CURLTUGMZLYLDI-UHFFFAOYSA-N", "UHOVQNZJYSORNB-UHFFFAOYSA-N "]
 }))
 
 # File upload
@@ -101,11 +110,12 @@ if uploaded_file is not None:
             df = pd.read_csv(uploaded_file)
 
             # Ensure required columns exist
-            if 'Compound Name' in df.columns and 'Smiles' in df.columns:
+            if 'Compound Name' in df.columns and 'Smiles' in df.columns and 'InChIKey' in df.columns:
                 results = []
                 for index, row in df.iterrows():
                     smiles = row['Smiles']
                     compound_name = row['Compound Name']
+                    InChIKey = row['InChIKey']
 
                     # Generate feature vector
                     feature_vector = generate_feature_vector(smiles, feature_names)
@@ -126,13 +136,19 @@ if uploaded_file is not None:
                     # Get important features
                     important_features = [feature_names[i] for i, value in enumerate(feature_vector) if value == 1]
 
+                    # Check if InChIKey exists in environmental compounds database (case-insensitive)
+                    user_inchi = InChIKey.strip().upper()
+                    env_inchis = df_Env_compounds['InChIKey'].str.strip().str.upper().tolist()
+                    is_environmental = user_inchi in env_inchis
+
                     # Append results
                     results.append({
                         "Compound Name": compound_name,
                         "Smiles": smiles,
                         "Class": predicted_class,
                         "Probability(%)": probability,
-                        "Molecular Fingerprints": important_features
+                        "Molecular Fingerprints": important_features,
+                        "Environmental Relevance": is_environmental
                     })
 
                 # Create a DataFrame from results
@@ -152,7 +168,7 @@ if uploaded_file is not None:
                     mime='text/csv'
                 )
             else:
-                st.write("**The uploaded CSV file must have 'Compound Name' and 'Smiles' columns.**")
+                st.write("**The uploaded CSV file must have 'Compound Name', 'Smiles', and 'InChIKey' columns.**")
 
     except Exception as e:
         st.write("**Error processing the file. Please ensure it is a valid CSV file.**")
