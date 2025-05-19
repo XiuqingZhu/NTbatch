@@ -20,6 +20,10 @@ def load_image(image_path):
 def load_env_compounds():
     return pd.read_csv('./Environmental-Related Compounds Database.csv')
 
+df_Env_compounds = load_env_compounds()
+
+env_inchis = df_Env_compounds['InChIKey'].str.strip().str.upper().tolist()
+
 def run_progress():
     progress_bar = st.empty()
     for i in range(10):
@@ -138,7 +142,7 @@ if uploaded_file is not None:
 
                     # Check if InChIKey exists in environmental compounds database (case-insensitive)
                     user_inchi = InChIKey.strip().upper()
-                    env_inchis = df_Env_compounds['InChIKey'].str.strip().str.upper().tolist()
+                    
                     is_environmental = user_inchi in env_inchis
 
                     # Append results
