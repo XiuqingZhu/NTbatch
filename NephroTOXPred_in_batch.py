@@ -91,8 +91,8 @@ st.write("**Upload a CSV file with compound names, SMILES and for batch predicti
 st.write("Example:")
 st.write(pd.DataFrame({
     "Compound Name": ["Compound1", "Compound2", "Compound3"],
-    "Smiles": ["CCO", "O=C=O", "C1=CC=CC=C1"]
-    "InChIKey": ["LFQSCWFLJHTTHZ-UHFFFAOYSA-N", "CURLTUGMZLYLDI-UHFFFAOYSA-N", "UHOVQNZJYSORNB-UHFFFAOYSA-N "]
+    "Smiles": ["CCO", "O=C=O", "C1=CC=CC=C1"],
+    "InChIKey": ["LFQSCWFLJHTTHZ-UHFFFAOYSA-N", "CURLTUGMZLYLDI-UHFFFAOYSA-N", "UHOVQNZJYSORNB-UHFFFAOYSA-N"]
 }))
 
 # File upload
